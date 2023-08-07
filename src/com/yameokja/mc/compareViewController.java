@@ -20,8 +20,11 @@ public class compareViewController
 	@Autowired
 	private SqlSession sqlSession;
 	
+
+
 	@RequestMapping(value="/compareView.action", method=RequestMethod.GET)
 	public String compareView(HttpServletRequest request, Model model)
+    
 	@RequestMapping(value="/compareView.action", method=RequestMethod.POST)
 	public String compareView(HttpServletRequest request, HttpServletResponse response, Model model)
 	{
@@ -44,6 +47,18 @@ public class compareViewController
 		System.out.println(str);
 		
 		for(int i = 0; i < str.length ; i++)
+		{
+
+			System.out.println(str[i]);
+			stArr = str[i].split(",");
+
+		}
+		
+		System.out.println(stArr);
+		
+		/* System.out.println(str); */
+		
+		for (String string : stArr)
 		{
 
 			System.out.println(str[i]);
