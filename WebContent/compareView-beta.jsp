@@ -181,9 +181,7 @@
 
 .cBox
 {
-	border-top: 10px solid #ED8C80;
-	border-bottom: 10px solid #ED8C80;
-	border-radius: 10px 10px 10px 10px;
+	
 }
 
 .cName, .cList, .week, .phMenu, .phStore
@@ -193,18 +191,13 @@
 	padding-bottom: 2vh;
 }
 
-.cList, .week
-{	
-	background-color: #F7F4EA;
-}
-
 .cName
 {	
 	width: 13vw;
 	font-size: 1.5rem; font-weight: bold;
 }
 
-.cList
+.cList, .cLo
 {
 	height: 3vh;
 	font-size: 1rem; font-weight: bold;
@@ -222,7 +215,7 @@
 
 .photo2
 {
-	background-color: #F7F4EA;
+	
 }
 
 .phStore
@@ -455,7 +448,12 @@ $(document).ready(function()
 			<span>비교하기</span>
 		</div>
 		
-		<div id="여기가 큰 비교 틀 & 포문으로 들어갈 공간" class="compareBody"> 
+		<div id="여기가 큰 비교 틀 & 포문으로 들어갈 공간" class="compareBody">
+		
+			<div class="cCategory">
+				
+			</div>
+			
 		   <%-- <c:forEach var="store" items = "${불러온 비교할 가게 리스트 }"> --%>
 		   <c:forEach begin="1"  end="3"  varStatus="store">
 		      <div id="비교하는 가게 공간" class="compareSpace">
@@ -465,13 +463,13 @@ $(document).ready(function()
 		         <div id="비교하는 가게 대표 사진" class="photo1">
 		            <img id="가게 대표사진" class="phStore" src = "<%=cp %>/images/store_img01.png">
 		         </div>
+		         <div id="가게 주소" class="cLo">
+			         	${store.index} 가게 주소
+			     </div>
 		         
 		         <div class="cBox">
 			         <div id="가게 음식 카테고리" class="cList cat">
 			            ${store.index} 가게 음식 카테고리
-			         </div>
-			         <div id="가게 주소" class="cList">
-			         	${store.index} 가게 주소
 			         </div>
 			         <div id="가게 평균 별점" class="cList">
 			         	${store.index} 가게 평균 별점
