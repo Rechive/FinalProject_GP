@@ -168,20 +168,22 @@
 
 .compareBody
 {	
-	width: 60vw;
-	margin-left: 21vw;
+	width: 100vw;
+	margin-left: 5vw;
 	display: flex;
 	text-align: center;
 }
 
 .compareSpace
-{
-	margin-right: 3vw;
+{	
+	border-left: 3vw ;
+	margin-right: 1.5vw;
 }
 
-.cBox
-{
-	
+.cCategory
+{	
+	margin-top: 34vh;
+	width: 20vw;
 }
 
 .cName, .cList, .week, .phMenu, .phStore
@@ -197,10 +199,29 @@
 	font-size: 1.5rem; font-weight: bold;
 }
 
+.cBox
+{
+	border-left: 1px solid #EB8F83;
+}
+
 .cList, .cLo
 {
 	height: 3vh;
 	font-size: 1rem; font-weight: bold;
+}
+
+.lCat, .lDay
+{
+	height: 3vh;
+	font-size: 1rem; font-weight: bold;
+	padding-right : 2vw;
+	padding-left: 2vw;
+	padding-bottom: 2vh;
+}
+
+.lWeek
+{
+	margin-top: 2.5vh;
 }
 
 .cat
@@ -211,11 +232,6 @@
 .photo1
 {
 	margin-bottom: 1vh;
-}
-
-.photo2
-{
-	
 }
 
 .phStore
@@ -451,7 +467,34 @@ $(document).ready(function()
 		<div id="여기가 큰 비교 틀 & 포문으로 들어갈 공간" class="compareBody">
 		
 			<div class="cCategory">
-				
+				<div class="cCat">
+			         <div id="가게 음식 카테고리" class="lCat">
+			             가게 음식 카테고리
+			         </div>
+			         <div id="가게 평균 별점" class="lCat">
+			         	가게 평균 별점
+			         </div>
+			         <div id="가게 리뷰 수" class="lCat">
+			         	 가게 리뷰 수
+			         </div>
+			         <div id="가게 주" class="lWeek">
+				         <div id="일요일" class="lDay">
+				         	영업 일/시간
+				         </div>
+				     </div>
+			         <div id="가게 평균 가격" class="lCat">
+			         	 가게 평균 가격
+			         </div>
+			         <div id="가게 대표 메뉴 이미지" class="lCat">
+			         	
+			         </div>
+			         <div id="가게 대표 메뉴 이름" class="lCat">
+			         	 가게 대표 메뉴 이름
+			         </div>
+			         <div id="가게 최대 수용 인원" class="lCat">
+			         	 가게 최대 수용 인원
+			         </div>
+		         </div> <!-- cCat -->
 			</div>
 			
 		   <%-- <c:forEach var="store" items = "${불러온 비교할 가게 리스트 }"> --%>
