@@ -22,18 +22,10 @@ public class compareViewController
 	
 
 
-
+	/*
 	 @RequestMapping(value="/compareView.action", method=RequestMethod.GET) public
 	 String compareView(HttpServletRequest request, Model model)
 	 
-
-	@RequestMapping(value="/compareView.action", method=RequestMethod.GET)
-	public String compareView(HttpServletRequest request, Model model)
-	{
-		String result = "";
-		
-		return result;
-	}
     
 	@RequestMapping(value="/compareView.action", method=RequestMethod.POST)
 	public String compareView(HttpServletRequest request, HttpServletResponse response, Model model)
@@ -41,11 +33,7 @@ public class compareViewController
 		IcompareViewDAO dao = sqlSession.getMapper(IcompareViewDAO.class);
 
 		int[] st_nums = new int[3];
-
 		
-
-		try
-		{
 		IUserDAO udao = sqlSession.getMapper(IUserDAO.class);
 		
 		/*
@@ -64,18 +52,7 @@ public class compareViewController
 		
 		System.out.println(stArr);
 		
-
 		System.out.println(str);
-
-		/* System.out.println(str); */
-		
-		for (int i = 0; i < stArr.length; i++)
-		{
-
-			System.out.println(str[i]);
-			stArr = str[i].split(",");
-
-		}
 		
 		System.out.println(stArr);
 		
@@ -88,7 +65,6 @@ public class compareViewController
 			System.out.println("Before: " + st_nums[2]);
 			st_nums[2] = request.getParameter("st_num3") != null ? Integer.parseInt(request.getParameter("st_num3")) : 0;
 			System.out.println("After: " + st_nums[2]);
-		}
 		}
 		catch (NumberFormatException e)
 		{
@@ -125,4 +101,3 @@ public class compareViewController
 		}
 	}*/
 }
-
