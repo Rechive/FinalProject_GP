@@ -168,22 +168,26 @@
 
 .compareBody
 {	
-	width: 100vw;
-	margin-left: 5vw;
+	width: 70vw;
+	margin-left: 11vw;
 	display: flex;
 	text-align: center;
 }
 
 .compareSpace
-{	
-	border-left: 3vw ;
-	margin-right: 1.5vw;
+{
+	
 }
 
 .cCategory
 {	
-	margin-top: 34vh;
+	margin-top: 30.88vh;
 	width: 20vw;
+}
+
+.Category div
+{
+	width: 15vw;
 }
 
 .cName, .cList, .week, .phMenu, .phStore
@@ -191,6 +195,11 @@
 	padding-right : 2vw;
 	padding-left: 2vw;
 	padding-bottom: 2vh;
+}
+
+.cList, .week, .lCat, .lWeek
+{
+	border-top: 1px solid #EB8F83;
 }
 
 .cName
@@ -214,19 +223,24 @@
 {
 	height: 3vh;
 	font-size: 1rem; font-weight: bold;
-	padding-right : 2vw;
-	padding-left: 2vw;
-	padding-bottom: 2vh;
+	padding-top: 3vh;
+	padding-bottom: 1.5vh;
 }
 
 .lWeek
 {
-	margin-top: 2.5vh;
+	height: 36vh;
+	padding-bottom: 6vh;
+}
+
+.lavgP
+{
+	height: 20.75vh;
 }
 
 .cat
 {
-	padding-top: 3vh;
+	margin-top: 3vh;
 }
 
 .photo1
@@ -337,42 +351,50 @@ $(document).ready(function()
             $(this).css("height", "30vh");
             $(this).css("padding-bottom", "1.5vh");
             $(this).css("padding-top", "0vh");
+            $(".lWeek").css("height", "25.5vh");
         }
         else if(numOfDays == 5)
         {
             $(this).css("height", "25vh");
             $(this).css("padding-bottom", "1.5vh");
             $(this).css("padding-top", "0vh");
+            $(".lWeek").css("height", "20.5vh");
         }
         else if(numOfDays == 4)
         {
             $(this).css("height", "20vh");
             $(this).css("padding-bottom", "1.5vh");
             $(this).css("padding-top", "0vh");
+            $(".lWeek").css("height", "15.5vh");
         }
         else if(numOfDays == 3)
         {
             $(this).css("height", "15vh");
             $(this).css("padding-bottom", "1.5vh");
             $(this).css("padding-top", "0vh");
+            $(".lWeek").css("height", "10.4vh");
+            
         }
         else if(numOfDays == 2)
         {
             $(this).css("height", "10vh");
             $(this).css("padding-bottom", "0vh");
-            $(this).css("padding-top", "0vh");
+            $(this).css("padding-top", "5.5vh");
+            $(".lWeek").css("height", "9.5vh");
         }
         else if(numOfDays == 1)
         {
             $(this).css("height", "5vh");
             $(this).css("padding-bottom", "0vh");
             $(this).css("padding-top", "0vh");
+            $(".lWeek").css("height", "0.5vh");
         }
         else if(numOfDays == 0)
         {
             $(this).css("height", "0vh");
             $(this).css("padding-bottom", "0vh");
             $(this).css("padding-top", "0vh");
+            $(".lWeek").css("height", "0vh");
         }
     });
 });
@@ -468,30 +490,27 @@ $(document).ready(function()
 		
 			<div class="cCategory">
 				<div class="cCat">
-			         <div id="가게 음식 카테고리" class="lCat">
+			         <div id="가게 음식 카테고리" class="cList cat">
 			             가게 음식 카테고리
 			         </div>
-			         <div id="가게 평균 별점" class="lCat">
+			         <div id="가게 평균 별점" class="cList">
 			         	가게 평균 별점
 			         </div>
-			         <div id="가게 리뷰 수" class="lCat">
+			         <div id="가게 리뷰 수" class="cList">
 			         	 가게 리뷰 수
 			         </div>
 			         <div id="가게 주" class="lWeek">
-				         <div id="일요일" class="lDay">
-				         	영업 일/시간
-				         </div>
+				       <div id="일요일" class="lDay">
+				         영업 일/시간
+				       </div>
 				     </div>
-			         <div id="가게 평균 가격" class="lCat">
+			         <div id="가게 평균 가격" class="cList lavgP">
 			         	 가게 평균 가격
 			         </div>
-			         <div id="가게 대표 메뉴 이미지" class="lCat">
-			         	
-			         </div>
-			         <div id="가게 대표 메뉴 이름" class="lCat">
+			         <div id="가게 대표 메뉴 이름" class="cList">
 			         	 가게 대표 메뉴 이름
 			         </div>
-			         <div id="가게 최대 수용 인원" class="lCat">
+			         <div id="가게 최대 수용 인원" class="cList">
 			         	 가게 최대 수용 인원
 			         </div>
 		         </div> <!-- cCat -->
@@ -521,9 +540,9 @@ $(document).ready(function()
 			         	${store.index} 가게 리뷰 수
 			         </div>
 			         <div id="가게 주" class="week">
-				         <div id="일요일" class="cDay">
+				         <%-- <div id="일요일" class="cDay">
 				         	${store.index} 일요일  10:00 ~ 24:00
-				         </div>
+				         </div> 
 				         <div id="월요일" class="cDay">
 				         	${store.index} 월요일  10:00 ~ 24:00 
 				         </div>
@@ -532,7 +551,7 @@ $(document).ready(function()
 				         </div>
 				         <div id="수요일" class="cDay">
 				         	${store.index} 수요일  10:00 ~ 24:00
-				         </div>
+				         </div> --%>
 				         <div id="목요일" class="cDay">
 				         	${store.index} 목요일  10:00 ~ 24:00
 				         </div>
