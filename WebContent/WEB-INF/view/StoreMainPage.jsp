@@ -1162,6 +1162,7 @@ $(function name()
 								<div class="replyBox" align="right" style="display: none;" id="div${rv.rv_num }">
 									사장님 : <input type="text" class="rvApplyContent"> <input type="button" class="completeBtn" value="완료">
 								</div>
+								
 							</div>
 							<input type="hidden" value="${rn }" name="rvNumHidden"> 
 							<input type="hidden" value="" name="rep_rs_num">
