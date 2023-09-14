@@ -219,9 +219,8 @@ public class UserController
         IMainDAO idao = sqlSession.getMapper(IMainDAO.class);
         IUserDAO udao = sqlSession.getMapper(IUserDAO.class);
         
-        List<Integer> ibmatList = idao.getIbmatStNumber(user_num);
-		List<Integer> jjimList = idao.getJjimStNumber(user_num);
-		List<Integer> comList = idao.getStoreComList(user_num);
+		List<StoreDTO> jimList = udao.searchLikeList(user_num);
+		model.addAttribute("likelist", jimList);
 		
 		/* System.out.println(comList); */
 		
@@ -238,6 +237,19 @@ public class UserController
 			user.setUser_grade(udao.secondHalf(user_num).user_grade);
 		}
 		
+		// 비교함 내역
+		List<Integer> comList = idao.getStoreComList(user_num);
+		
+		if (comList.size() > 0)
+			model.addAttribute("comList", idao.getStoreList(comList));
+		else
+			model.addAttribute("comList", null);
+		
+		/*
+		List<Integer> ibmatList = idao.getIbmatStNumber(user_num);
+		List<Integer> jjimList = idao.getJjimStNumber(user_num);
+		
+		
 		if (ibmatList.size() > 0)
 			model.addAttribute("ibmat_list", idao.getStoreList(ibmatList));
 		else
@@ -248,13 +260,8 @@ public class UserController
 		else
 			model.addAttribute("likelist", null);
 
-		if (comList.size() > 0)
-			model.addAttribute("comList", idao.getStoreList(comList));
-		else
-			model.addAttribute("comList", null);
-		
 		model.addAttribute("userJjimList", idao.userJjimSearch(user_num));
-		
+		*/
 		
 		model.addAttribute("user", user);
 		model.addAttribute("rvlist", udao.searchRvList(user_num));
@@ -262,7 +269,10 @@ public class UserController
 		model.addAttribute("tastekeyword", udao.searchTasteKeyword(user_num));
 		
 		model.addAttribute("alarm", udao.userAlarm(user_num));
-
+		String modifyOk =  (String) session.getAttribute("modifyOk");
+		model.addAttribute("modifyOk", modifyOk);
+		
+		session.removeAttribute("modifyOk");
 		
 		result = "WEB-INF/view/user_MyPage.jsp";
 		
@@ -440,13 +450,47 @@ public class UserController
 	}
 	
 	@RequestMapping(value="/usermodify.action", method = {RequestMethod.GET, RequestMethod.POST})
+	public String modifyCheck(HttpServletRequest request, Model model, String user_num, String user_pw)
+	{
+		HttpSession session = request.getSession();
+		
+		//String user_num = (String) request.getAttribute("user_num");
+		//String user_pw = (String) request.getAttribute("user_pw");
+		
+		String result = "";
+		
+		IUserDAO uDao = sqlSession.getMapper(IUserDAO.class);
+		if(user_pw == "")
+		{
+			result = "redirect:usermypage.action";
+			session.setAttribute("modifyOk", "fail");
+		}
+		else
+		{
+			int check = uDao.userPwCheck(user_num, user_pw);
+			
+			if(check==1)
+			{
+				result = "redirect:usermodifyOk.action";
+			}
+			else
+			{
+				result = "redirect:usermypage.action";
+				session.setAttribute("modifyOk", "fail");
+			}
+		}
+		
+		return result;
+	}
+	
+	@RequestMapping(value="/usermodifyOk.action", method = {RequestMethod.GET, RequestMethod.POST})
 	public String modify(HttpServletRequest request, Model model)
 	{
 		HttpSession session = request.getSession();
 		
-		String user_num = (String)session.getAttribute("user_num");
-		
 		String result = "";
+		
+		String user_num = (String)session.getAttribute("user_num");
 		
 		IUserDAO udao = sqlSession.getMapper(IUserDAO.class);
 	    

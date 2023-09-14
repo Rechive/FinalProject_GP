@@ -264,10 +264,10 @@ public class StoreController
 		model.addAttribute("rvReplyList",smDao.rvReply(st_num));
 		
 		ArrayList<ReviewDTO> arr = smDao.rv_list(st_num);
-		for (ReviewDTO reviewDTO : arr)
-		{
-			System.out.println(reviewDTO.getReply_content());
-		}
+		/*
+		 * for (ReviewDTO reviewDTO : arr) {
+		 * System.out.println(reviewDTO.getReply_content()); }
+		 */
 		/* model.addAttribute("reply_content", reply_content(rv_num)); */
 		
 		model.addAttribute("alarm", uDao.userAlarm(user_num));
@@ -621,7 +621,7 @@ public class StoreController
                    	{
                    		boolean flag = true;
                    		if (!item.getString(CHARSET).equals("nocheck"))
-                   		{
+                   		{  
                    			for (StoreOpencloseDTO socdto : soclist)
 							{
 								if (socdto.getDay_num() == Integer.parseInt(item.getFieldName().substring(item.getFieldName().length()-1)))
@@ -727,9 +727,23 @@ public class StoreController
                    	{
                    		for (String pay : item.getString(CHARSET).split(","))
                    		{
-                   			System.out.println(pay);
-                   			
-                   			smdao.paysinsert(Integer.parseInt(pay), st_num);
+                   			/*if (!(pay.equals("")) || pay != null || pay.length() != 0)
+                   			{
+                   				int payInt = Integer.parseInt(pay);
+                   				smdao.paysinsert(payInt, st_num);
+                   			}*/
+                   			if (pay != null && !pay.trim().isEmpty()) 
+                   			{
+                   	            try
+                   	            {
+                   	                int payInt = Integer.parseInt(pay.trim());
+                   	                smdao.paysinsert(payInt, st_num);
+                   	            } catch (NumberFormatException e) 
+                   	            {
+                   	                // 정수로 변환할 수 없는 경우에 대한 예외 처리
+                   	                // 이 부분에서 오류를 기록하거나 다른 처리를 수행할 수 있습니다.
+                   	            }
+                   	        }
                    		}
                    	}
                    	else if(item.getFieldName().equals("chBoxO"))
@@ -815,7 +829,19 @@ public class StoreController
                    		{
                    			System.out.println(fc);
                    			
-                   			smdao.foodCatinsert(Integer.parseInt(fc), st_num);
+                   			if (fc != null && !fc.trim().isEmpty()) 
+                   			{
+                   	            try
+                   	            {
+                   	                int fcInt = Integer.parseInt(fc.trim());
+                   	                smdao.foodCatinsert(fcInt, st_num);
+                   	            } catch (NumberFormatException e) 
+                   	            {
+                   	                // 정수로 변환할 수 없는 경우에 대한 예외 처리
+                   	                // 이 부분에서 오류를 기록하거나 다른 처리를 수행할 수 있습니다.
+                   	            }
+                   	        }
+                   			
                    		}
                    	}
                    	else if(item.getFieldName().equals("st_email"))
