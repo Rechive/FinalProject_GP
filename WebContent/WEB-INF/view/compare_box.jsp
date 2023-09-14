@@ -14,6 +14,9 @@ String cp = request.getContextPath();
 
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery.min.js"></script>
+	
+<link rel="stylesheet" type="text/css" href="<%=cp%>/css/compareBox.css">
+
 <script type="text/javascript">
 	/* 
 	 $(function()
@@ -53,6 +56,21 @@ String cp = request.getContextPath();
 				alert("2개부터 비교 가능합니다.");
 				return;
 			}
+			
+			if ($('input:checkbox[name=comStImgCB]:checked').length == 0)
+			{
+				alert("최소 2개 이상 선택해주세요.");
+				return;
+			}
+			
+			if($('#user').val()=='먹린이')
+			{
+				if($('input:checkbox[name=comStImgCB]:checked').length > 2)
+				{
+					alert("'먹린이'등급은 2개까지만 비교가 가능합니다!");
+					return;
+				}
+			}
 
 			var checkArray = "";
 
@@ -61,7 +79,8 @@ String cp = request.getContextPath();
 				checkArray += $(this).attr("id") + ",";
 			});
 
-			alert(checkArray);
+			// 확인
+			//alert(checkArray);
 
 			$("#checkedCompare").attr("value", checkArray);
 
@@ -145,7 +164,12 @@ String cp = request.getContextPath();
 									</label>
 								</div>
 								<!-- 한 가게 가게이름 영역 -->
-								<div class="comStoreNameDiv">${com.st_name}</div>
+								<div class="comStoreNameDiv">
+									<button type="button" value="${com.st_num}" class="comStoreBtn"
+												onclick="location.href='stdetail-userview.action?st_num=${com.st_num}'">
+									${com.st_name }
+									</button>
+								</div>
 							</div>
 						</c:forEach>
 						<c:forEach begin="0" end="${10 - fn:length(comList)}">
@@ -162,6 +186,7 @@ String cp = request.getContextPath();
 				</c:choose>
 			</div>
 			<input type="hidden" id="checkedCompare" name="checkedCompare">
+			<input type="hidden" id="user" name="user" value="${user.user_grade }">
 		</div>
 
 		<div class="comStoreBtnDiv">

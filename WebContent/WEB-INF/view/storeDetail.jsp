@@ -16,8 +16,6 @@ String cp = request.getContextPath();
 <script src="https://unpkg.com/ionicons@5.2.3/dist/ionicons.js"></script>
 <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 
-<link rel="stylesheet" type="text/css" href="<%=cp%>/css/compareBox.css">
-
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery.min.js"></script>
 
@@ -90,6 +88,11 @@ String cp = request.getContextPath();
 			$('#checkOverlay').attr("value", "false");
 		});
 		
+	});
+	
+	
+	$(function()
+	{
 		$(".comAddBtn").click(function()
 		{
 			var st_num = $(this).val()
@@ -192,6 +195,27 @@ String cp = request.getContextPath();
 			});
 		});
 		
+		// 특정 메뉴 이름 hover 시 나타나기
+		/*
+		$("#menuName").hover(function()
+		{
+			if($(".menuName").attr("value").length > 11)
+			{
+				id = $(".menuNameHidden").attr("id");
+				id_value = $("#"+id).attr("value");
+				
+				if(id_value.length > 11)
+				{
+					$("#"+id).css("display", "block");
+				}
+			}
+		}, function()
+		{
+			$("#"+id).css("display", "none");
+		});
+		*/
+
+		
 		// 리뷰 작성 페이지로 이동
 		$("#insertReview").click(function()
 		{
@@ -202,6 +226,11 @@ String cp = request.getContextPath();
 		// 신고하기 버튼 눌렀을 때
 		$(".repBtn").click(function()
 		{
+			$("input:checkbox[name=reviewRep]:checked").each(function()
+			{
+				$(this).prop("checked", false);
+				totalChecked = 0;
+			});
 			alert($(this).val());
 			$("input[name=rvNumHidden]").attr("value", $(this).val());
 		});
@@ -261,10 +290,21 @@ String cp = request.getContextPath();
 			});
 		});
 		
+		// 가게정보오류수정 버튼 눌렀을 때
+		$("#modifyReqBtn").click(function()
+		{
+			$("input:checkbox[name=optionCheck]:checked").each(function()
+			{
+				$(this).prop("checked", false);
+				optionTotalChecked = 0;
+			});
+		});
+				
 		// 가게 정보 오류 수정 요청
 		$("#reqBtn").click(function()
 		{
 			$st_num = $("input[name=st_num]").val();
+			// 확인
 			//alert($st_num);
 			
 			var optionReq = [];
@@ -272,29 +312,44 @@ String cp = request.getContextPath();
 			$("input:checkbox[name=optionCheck]:checked").each(function()
 			{
 				optionReq.push($(this).val());
+				// 확인
 				//alert($(this).val());
 			});
 
 			$chbox_num = optionReq[0];
+			// 확인
 			//alert("st_num : " + $st_num + ", chbox_num :" + $chbox_num);
 
-			if (optionReq.length == null || optionReq.length == 0)
+			// 체크박스 선택이 이루어지지 않았다면 alert 후 return
+			if (optionReq.length == null || optionReq.length == 0 || optionReq.length > 1)
 			{
-				alert("정보수정을 요청하고자 하는 항목 하나를 선택해주세요!");
+				alert("정보수정을 요청하고자 하는 항목을 1개 선택해주세요!");
 				return;
 			}
 			
-			$req_rs = $("#reqRs").val();
-			alert("reqRs : " + $req_rs);
+			// 정보수정요청 사유를 입력하지 않았다면 alert 후 return
+			if ($("#reqRs").val() == "")
+			{
+				alert("정보수정요청 사유를 적어주세요!");
+				return;
+			}
 			
-			reqPopupOpen();
+			// 정보수정요청 사유 변수에 할당
+			$req_rs = $("#reqRs").val();
+			// 확인
+			//alert("reqRs : " + $req_rs);
 
+			reqPopupOpen();
+			
+			// 요청 후 입력된 정보 초기화
 			$("input:checkbox[name=optionCheck]:checked").each(function()
 			{
 				$(this).prop("checked", false);
 				optionTotalChecked = 0;
 			});
+			$("#reqRs").val('');
 			
+			// ajax 수행
 			$.ajax(
 			{
 				url : "reqapply.action",
@@ -305,12 +360,16 @@ String cp = request.getContextPath();
 					"chbox_num" : $chbox_num,
 					"st_num" : $st_num
 				},
-				context : this,
+				dataType : "text",
 				success : function(result)
 				{
-					if(result==1)
+					if(result=="1")
 					{
 						alert("가게정보 오류수정 요청이 완료되었습니다.");
+					}
+					else if(result=="0")
+					{
+						alert("이미 오류수정 요청이 진행중인 요청으로 요청이 완료되지 않았습니다.");
 					}
 				},
 				error : function(e)
@@ -319,7 +378,6 @@ String cp = request.getContextPath();
 				}
 			});
 		});
-	
 	});
 	
 	var totalChecked = 0;
@@ -337,9 +395,8 @@ String cp = request.getContextPath();
 			field.checked = false;
 			totalChecked -= 1;
 		}
-
 	}
-
+	
 	var optionTotalChecked = 0;
 
 	function optionCountChecked(field)
@@ -352,13 +409,10 @@ String cp = request.getContextPath();
 		if (optionTotalChecked > 1)
 		{
 			alert("한 개만 선택 가능합니다.");
-			option.checked = false;
+			field.checked = false;
 			optionTotalChecked -= 1;
 		}
 	}
-
-
-
 
 	// 모달--------------------------------------------------------------------------
 	function popupOpen()
@@ -588,14 +642,14 @@ String cp = request.getContextPath();
 
 								<div class="background" style="font-weight: bold;">
 									<div class="storeNameDiv">
-										<span style="font-size: 28pt; font-weight: bold;">${s.st_name }</span>
+										<span style="font-size: 2vw; font-weight: bold;">${s.st_name }</span>
 										<input type="hidden" name="st_name" value="${s.st_name }">
 										<button type="button" class="comAddBtn" value="${s.st_num}"
 											style="margin-left: 1vw;">+</button>
 									</div>
 									<div class="revBoard">
 										<div class="storeImgDiv">
-											<img class="storeImg" src="<%=cp%>/images/store_img01.png">
+											<img class="storeImg" src="<%=cp%>/${s.photo_link}">
 										</div>
 
 										<div class="info">
@@ -784,9 +838,23 @@ String cp = request.getContextPath();
 							<c:forEach var="ml" items="${menuLists }">
 								<div class="menu">
 									<div class="menuPhoto">
-										<img class="thumbnail" src="<%=cp %>/images/${ml.image_link }" />
+										<img class="thumbnail" src="${ml.image_link }" />
 									</div>
-									<div class="menuName">"${ml.menu_name }"</div>
+									<%-- <div class="menuName">"${ml.menu_name }"</div> --%>
+									<c:choose>
+										<c:when test="${fn:length(ml.menu_name) > 11}">
+											<div class="menuName" id="menuName${ml.menu_num }" value="${ml.menu_name }">
+												${fn:substring(ml.menu_name, 0, 10)}...
+											</div>
+										</c:when>
+										<c:otherwise>
+											<div class="menuName" id="menuName${ml.menu_num }" value="${ml.menu_name }">
+												${ml.menu_name}
+											</div>
+										</c:otherwise>
+									</c:choose>
+									<div class="menuNameHidden" id="menuNameHidden${ml.menu_num }" value="${ml.menu_name }">
+										${ml.menu_name}</div>
 									<div class="menuPrice">
 										<fmt:formatNumber value="${ml.price }" pattern="#,###" />
 										원
@@ -825,9 +893,11 @@ String cp = request.getContextPath();
 										<div class="rvTop">
 											<div class="userNickname">"${rv.user_nickname }"</div>
 											<div>
+											<c:if test="${user_num ne rv.user_num }">
 												<button type="button" class="repBtn rvBtn"
 													onclick="popupOpen()" value="${rv.rv_num }">신고하기</button>
-
+											</c:if>
+											
 											</div>
 										</div>
 
@@ -871,37 +941,48 @@ String cp = request.getContextPath();
 
 										<div class="rvBottom">
 											<div class="recNonrecBtnDiv">
-												<c:choose>
-													<c:when
-														test="${not empty userRnList and fn:contains(userRnList, rn)}">
-														<button type="button" id="nonrec${rn }" name="nonrec"
-															class="recBtn rvBtn" value="${rn }">비추천 👎
-															(${rv.nonrec })</button>
-														<button type="button" id="rec${rn }" name="rec"
-															class="recBtn rvBtn" value="${rn }"
-															style="border: 2px solid #ef6351">추천 👍
-															(${rv.rec } )</button>
-													</c:when>
-													<c:when
-														test="${not empty userNrnList and fn:contains(userNrnList, rn)}">
-														<button type="button" id="nonrec${rn }" name="nonrec"
-															class="recBtn rvBtn" value="${rn }"
-															style="border: 2px solid #ef6351">비추천 👎
-															(${rv.nonrec })</button>
-														<button type="button" id="rec${rn }" name="rec"
-															class="recBtn rvBtn" value="${rn }">추천 👍
-															(${rv.rec } )</button>
-													</c:when>
-													<c:otherwise>
-														<button type="button" id="nonrec${rn }" name="nonrec"
-															class="recBtn rvBtn" value="${rn }">비추천 👎
-															(${rv.nonrec })</button>
-														<button type="button" id="rec${rn}" name="rec"
-															class="recBtn rvBtn" value="${rn }">추천 👍
-															(${rv.rec } )</button>
-													</c:otherwise>
-												</c:choose>
+												<c:if test="${user_num ne rv.user_num }">
+													<c:choose>
+														<c:when
+															test="${not empty userRnList and fn:contains(userRnList, rn)}">
+															<button type="button" id="nonrec${rn }" name="nonrec"
+																class="recBtn rvBtn" value="${rn }">비추천 👎
+																(${rv.nonrec })</button>
+															<button type="button" id="rec${rn }" name="rec"
+																class="recBtn rvBtn" value="${rn }"
+																style="border: 2px solid #ef6351">추천 👍
+																(${rv.rec } )</button>
+														</c:when>
+														<c:when
+															test="${not empty userNrnList and fn:contains(userNrnList, rn)}">
+															<button type="button" id="nonrec${rn }" name="nonrec"
+																class="recBtn rvBtn" value="${rn }"
+																style="border: 2px solid #ef6351">비추천 👎
+																(${rv.nonrec })</button>
+															<button type="button" id="rec${rn }" name="rec"
+																class="recBtn rvBtn" value="${rn }">추천 👍
+																(${rv.rec } )</button>
+														</c:when>
+														<c:otherwise>
+															<button type="button" id="nonrec${rn }" name="nonrec"
+																class="recBtn rvBtn" value="${rn }">비추천 👎
+																(${rv.nonrec })</button>
+															<button type="button" id="rec${rn}" name="rec"
+																class="recBtn rvBtn" value="${rn }">추천 👍
+																(${rv.rec } )</button>
+														</c:otherwise>
+													</c:choose>
+												</c:if>
 											</div>
+										</div>
+										
+										<div class="rvReplyDiv">
+											<c:forEach var="rvReply" items="${rvReplyList }">
+												<c:if test="${rvReply.rv_num==rn}">
+													<div class="stOwner">↳ "사장님"</div>
+													<div class="rvReplyContentDiv" id="${rn }">${rvReply.reply_content}</div>
+												</c:if>
+											</c:forEach>
 										</div>
 									</div>
 								</c:forEach>
@@ -917,21 +998,14 @@ String cp = request.getContextPath();
 								<h3>리뷰신고</h3>
 								<div class="popCont">
 									<div class="list">
-										<label for="commercial"> <input type="checkbox"
-											class="reviewRep" id="commercial" name="reviewRep" value="1"
-											onclick="CountChecked(this)">원치 않는 상업적인 리뷰
-										</label><br> <br> <label for="intended"> <input
-											type="checkbox" id="intended" name="reviewRep"
-											class="reviewRep" value="2" onclick="CountChecked(this)">악의적인
-											리뷰
-										</label><br> <br> <label for="wrong"> <input
-											type="checkbox" id="wrong" name="reviewRep" class="reviewRep"
-											value="3" onclick="CountChecked(this)">잘못된 정보
-										</label><br> <br> <label for="violent"> <input
-											type="checkbox" id="violent" name="reviewRep"
-											class="reviewRep" value="4" onclick="CountChecked(this)">욕설,
-											성적, 폭력적인 리뷰
-										</label><br> <br>
+										<c:forEach var="rvRep" items="${rvRepList}">
+											<div class="rvRepLabel">
+												<label for="${rvRep.rep_rs_name }"> <input type="checkbox"
+													class="reviewRep" id="${rvRep.rep_rs_name }" name="reviewRep" value="${rvRep.rep_rs_num }"
+													onclick="CountChecked(this)">${rvRep.rep_rs_name }
+												</label>
+											</div>
+										</c:forEach>
 									</div>
 								</div>
 								<div class="dec">
@@ -949,9 +1023,19 @@ String cp = request.getContextPath();
 									<div class="list">
 										<c:forEach var="checkOption" items="${stCheckList}">
 											<div class="oplist">
-												<input type="checkbox" id="${checkOption.chbox_name }"
-													value="${checkOption.chbox_num }" name="optionCheck"
-													onclick="optionCountChecked()">
+												<c:choose>
+													<c:when test="${checkOption.yesorno eq '-' }">
+														<input type="checkbox" id="${checkOption.chbox_name }"
+															value="${checkOption.chbox_num }"
+															onclick = "optionCountChecked(this)" name="optionCheck" disabled="disabled">
+													</c:when>
+													<c:otherwise>
+														<input type="checkbox" id="${checkOption.chbox_name }"
+															value="${checkOption.chbox_num }"
+															onclick = "optionCountChecked(this)" name="optionCheck">
+													</c:otherwise>
+												</c:choose>
+												
 
 												<div class="oplistName">
 													<label for="${checkOption.chbox_name }">

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -23,6 +24,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+
+
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.Part;
+
+
 
 @Controller
 public class stDetailController
@@ -48,10 +64,17 @@ public class stDetailController
 
 
 		int st_num = Integer.parseInt(request.getParameter("st_num"));
-		// System.out.println(st_num);
+		//System.out.println("st_num : " + st_num);
 
 		
-		String data = (String) session.getAttribute("flashData");
+		//String data = (String) session.getAttribute("flashData");
+		//String data = String.valueOf(session.getAttribute("flashData"));
+		
+		String data = null;
+		
+		if (session.getAttribute("falshDate") != null)
+	         data = (String) session.getAttribute("flashData");
+		
 		session.removeAttribute("flashData");
 		if (data != null) {
 		    // flashData 값이 null이 아닌 경우의 처리 로직
@@ -168,9 +191,21 @@ public class stDetailController
 
 		// 가게 리뷰 사진 목록
 		ArrayList<StoreRvPhotoDTO> rvPhotos = dao.rvPhoto(st_num);
+		
+		if (rvPhotos.size() > 0)
+		{
+			for (StoreRvPhotoDTO rvphoto : rvPhotos)
+			{
+				
+			}
+		}
 
 		model.addAttribute("rvPhotos", rvPhotos);
 
+		// 리뷰 답글
+		model.addAttribute("rvReplyList",smDao.rvReply(st_num));
+		
+		// 비교함 영역
 		if (comList.size() > 0)
 			model.addAttribute("comList", mdao.getStoreList(comList));
 		else
@@ -194,11 +229,16 @@ public class stDetailController
 		model.addAttribute("userNrnList", userNrnList);
 
 		model.addAttribute("userJjimList", mdao.userJjimSearch(user_num));
+		
+		// 리뷰 신고 범례 리스트
+		ArrayList<reviewRepDTO> rvRepList = dao.reviewRepLabel();
+		model.addAttribute("rvRepList", rvRepList);
 
 		result = "/WEB-INF/view/storeDetail.jsp";
 
 		return result;
 	}
+	
 
 	@RequestMapping(value = "/reviewrep.action")
 	@ResponseBody
@@ -314,23 +354,45 @@ public class stDetailController
 	// 가게정보오류수정요청
 	@RequestMapping(value = "/reqapply.action")
 	@ResponseBody
-	public int reqApply(@RequestParam("req_rs") String req_rs, @RequestParam("st_num") int st_num,
+	public String stReqApply(@RequestParam("req_rs") String req_rs, @RequestParam("st_num") int st_num,
 			@RequestParam("chbox_num") int chbox_num, HttpServletRequest request)
 	{
-		int result = 0;
-
 		HttpSession session = request.getSession();
 		String user_num = (String) session.getAttribute("user_num");
 
 		IstDetailDAO_userView dao = sqlSession.getMapper(IstDetailDAO_userView.class);
 
+		String result = "0";
+		
 		// st_num 과 chbox_num으로 st_chbox_num 찾기
-		int st_chbox_num = 0;
-		st_chbox_num = dao.searchStChboxnum(st_num, chbox_num);
-
-		// 찾은 st_chbox_num 으로 req_apply에 데이터 insert
-		result = dao.reqApply(user_num, req_rs, st_chbox_num);
-
+		st_num = Integer.parseInt(request.getParameter("st_num"));
+		//System.out.println("st_num :  " + st_num);
+		//System.out.println("chbox_num : " + chbox_num);
+		Integer st_chbox_num = dao.searchStChboxnum(st_num, chbox_num);
+		
+		if(st_chbox_num != null)
+		{
+			Integer req_apply_num = dao.reqIsNull(st_chbox_num);
+			
+			// 해당 st_chbox_num에 대한 요청이 없거나 이미 처리가 완료된 상황이면 insert
+			if(req_apply_num == null)
+			{
+				// 찾은 st_chbox_num 으로 req_apply에 데이터 insert
+				if(dao.reqApply(user_num, req_rs, st_chbox_num)==1)
+				{
+					result = "1";
+				}
+			} 
+			else if(dao.reqRej(req_apply_num) != null && dao.reqObj(req_apply_num)==0 && dao.reqRevo(req_apply_num)==0 && dao.reqPen(req_apply_num)==0)
+			{
+				// 찾은 st_chbox_num 으로 req_apply에 데이터 insert
+				if(dao.reqApply(user_num, req_rs, st_chbox_num)==1)
+				{
+					result = "1";
+				}
+			}
+		}
+		
 		return result;
 	}
 
@@ -389,11 +451,10 @@ public class stDetailController
 		
 		String result = "";
 		
-		// 사용자 정보 st_num
+		// 사용자 정보 user_num
 		HttpSession session = request.getSession();
 
 		String user_num = (String) session.getAttribute("user_num");
-
 
 		IstDetailDAO_userView dao = sqlSession.getMapper(IstDetailDAO_userView.class);;
 		
@@ -445,40 +506,13 @@ public class stDetailController
 			int st_num = 0;
 			String rv_content = "";
 			int star_score = 0;
-			int rv_key_num = 0;
-			String search_name = "";
+			Integer imgCount = null;
 			
-            ArrayList<String> rkList = new ArrayList<String>();
+            //ArrayList<String> rkList = new ArrayList<String>();
             // 가게 검색 키워드 받는 배열
-    		ArrayList<String> skArr = new ArrayList<String>();
+    		//ArrayList<String> skArr = new ArrayList<String>();
 
 			List<FileItem> items = fileUpload.parseRequest(request);
-
-			for (FileItem item : items)
-			{
-				if (item.isFormField() && item.getFieldName().equals("st_num"))
-				{
-					st_num = Integer.parseInt(item.getString(CHARSET));
-				} 
-				else if (item.isFormField() && item.getFieldName().equals("rv_content"))
-				{
-					rv_content = item.getString(CHARSET);
-				} 
-				else if (item.isFormField() && item.getFieldName().equals("star_score"))
-				{
-					star_score = Integer.parseInt(item.getString(CHARSET));
-				}
-				else if (item.isFormField()  && item.getFieldName().equals("rv_key_num"))
-				{
-					rv_key_num = Integer.parseInt(item.getString(CHARSET));
-				}
-				else if (item.isFormField() && item.getFieldName().equals("search_name"))
-				{
-					search_name = item.getString(CHARSET);
-				}
-			}
-			
-           
             
             for (FileItem item : items)
             {
@@ -489,27 +523,43 @@ public class stDetailController
                 		star_score = Integer.parseInt(item.getString(CHARSET));
                 	if (item.getFieldName().equals("reviewContent"))
                 		rv_content = item.getString(CHARSET);
-                	if (item.getFieldName().equals("rkArrHidden"))
+                	if (item.getFieldName().equals("st_num"))
+                		st_num = Integer.parseInt(item.getString(CHARSET));
+                	if (item.getFieldName().equals("rvArrHidden"))
                 	{
                 		for (String rvkey : item.getString(CHARSET).split(","))
                 		{
-                			dao.rKeywordInsert(st_num, Integer.parseInt(rvkey));
-                			System.out.println(rvkey);
+							if(!(rvkey.equals("")) || rvkey!=null )
+							{
+								Integer rvkey_num = dao.rKeywordSearch(st_num, Integer.parseInt(rvkey));
+	                			if(rvkey_num==null)
+	                			{
+	                				dao.rKeywordInsert(st_num, Integer.parseInt(rvkey));
+	                			}
+	                			else
+	                			{
+	                				dao.rKeywordUpdate(st_num, Integer.parseInt(rvkey));
+	                			}
+							}
                 		}
                 	}
                 	if (item.getFieldName().equals("skArrHidden"))
                 	{
                 		for (String sk : item.getString(CHARSET).split(","))
                 		{
-                			int searchNum = smdao.searchKeyselect(st_num, sk);
-                			if (searchNum == -1)
-                       		{
-                       			smdao.searchKeyinsert(st_num, sk);
-                       		}
-                       		else
-                       		{	
-                   				smdao.stsearchKeyUpdate(st_num, sk);
-                       		}
+                			//System.out.println(!(sk.equals("")));
+                			if(!(sk.equals("")))
+                			{
+	                			Integer searchNum = dao.skeywordSearch(st_num, sk);
+	                			if (searchNum==null)
+	                       		{
+	                       			dao.sKeywordInsert(st_num, sk);
+	                       		}
+	                       		else
+	                       		{	
+	                   				dao.skeywordUpdate(st_num, sk);
+	                       		}
+	                		}
                 		}
                 	}
                 }
@@ -582,6 +632,15 @@ public class stDetailController
 			*/
 			// 가게상세페이지로 가기 위해 st_num을 model로 전송
 			model.addAttribute("st_num", st_num);
+			
+			// 리뷰 작성 포인트 추가
+			Integer rvPhotoCount = imgCount;
+			
+			dao.addPoint(user_num, 1);
+			
+			if(rvPhotoCount != null && rvPhotoCount > 0)	
+				dao.addPoint(user_num, 2);
+			
 		} catch (Exception e)
 		{
 			e.printStackTrace();

@@ -64,20 +64,22 @@ public class MainController
 		else
 			model.addAttribute("jjim_list", null);
 
-		if (hotList.size() > 3)
-			model.addAttribute("hot_list", dao.getStoreList(hotList));
+		if (hotList.size() >= 5)
+		{
+			hotList = hotList.subList(0, 5);
+		}
 		else
 		{
-			for (int i=0; i<5; i++)
+			for (int i=0; i<=5-(hotList.size()); i++)
 			{
 				/* hotList.add(random.nextInt()); */
 				hotList.add(i+1);
 			}
 			
-			/* System.out.println(hotList); */
-			
-			model.addAttribute("hot_list", dao.getStoreList(hotList));
+			//System.out.println(hotList);
 		}
+		
+		model.addAttribute("hot_list", dao.getStoreList(hotList));
 
 		if (comList.size() > 0)
 			model.addAttribute("comList", dao.getStoreList(comList));
@@ -128,11 +130,11 @@ public class MainController
 
 		for (int i = 0; i < keywordList.size(); i++)
 		{
-			List<Integer> temp = null;
-			temp = dao.getStoreSearchList(keywordList.get(i));
+			List<Integer> temp = dao.getStoreSearchList(keywordList.get(i));
 
 			for (int j = 0; j < temp.size(); j++)
 			{
+				//System.out.println(temp.get(j));
 				finalKeyword.add(temp.get(j));
 			}
 		}
@@ -222,7 +224,12 @@ public class MainController
 				 */
 				html += "		</label>";
 				html += "	</div>";
-				html += "	<div class=\"comStoreNameDiv\">"+store.getSt_name()+"</div>";
+				html += "	<div class=\"comStoreNameDiv\">";
+				html += "		<button type=\"button\" value=\"" + String.valueOf(store.getSt_num()) + "\" class=\"comStoreBtn\"";
+				html +=	"			onclick=\"location.href='stdetail-userview.action?st_num=" + String.valueOf(store.getSt_num()) + "'\">"; 
+				html +=				String.valueOf(store.getSt_name()); 
+				html +=	"		</button>";
+				html += "	</div>";
 				html += "</div>";
 			}
 			if (storeList.size() < 10)
@@ -291,7 +298,12 @@ public class MainController
 
 					html += "		</label>";
 					html += "	</div>";
-					html += "	<div class=\"comStoreNameDiv\">"+store.getSt_name()+"</div>";
+					html += "	<div class=\"comStoreNameDiv\">";
+					html += "		<button type=\"button\" value=\"" + String.valueOf(store.getSt_num()) + "\" class=\"comStoreBtn\"";
+					html +=	"			onclick=\"location.href='stdetail-userview.action?st_num=" + String.valueOf(store.getSt_num()) + "'\">"; 
+					html +=				String.valueOf(store.getSt_name()); 
+					html +=	"		</button>";
+					html += "	</div>";
 					html += "</div>";
 				}
 				
@@ -334,10 +346,17 @@ public class MainController
 		String result = "";
 
 		IMainDAO dao = sqlSession.getMapper(IMainDAO.class);
+		IstDetailDAO_userView stDao = sqlSession.getMapper(IstDetailDAO_userView.class);
 
 		if (dao.jjimSearch(user_num, Integer.parseInt(st_num)) == 0)
 		{
 			dao.jjimInsert(user_num, Integer.parseInt(st_num));
+			
+			if(dao.jjimTodayCount(user_num) <= 3)
+			{
+				stDao.addPoint(user_num, 3);
+			}
+			
 			result = "❤️";
 		} else
 		{
@@ -475,7 +494,7 @@ public class MainController
 		model.addAttribute("keyword", keyword);
 		
 		// 검색 단어들로 찾은 st_num 리스트
-		//model.addAttribute("firstSearchResult", finalKeyword);
+		model.addAttribute("firstSearchResult", finalKeyword);
 
 		// 필터 검색을 위한 범례리스트
 		model.addAttribute("regionList", dao.regionList());
@@ -544,16 +563,26 @@ public class MainController
 		}
 		
 		ArrayList<Integer> filterResult = dao.filterSearchList(regionCbList, catCbList, stKeyCbList, finalKeyword);
-		
-		if(filterResult==null)
+
+
+		if(filterResult.size() == 0)
 		{
-			ArrayList<StoreDTO> searchList = dao.getStoreList(filterResult);
-			
-			model.addAttribute("searchList", searchList);
+			model.addAttribute("searchList", null);
 		}
 		else
 		{
-			model.addAttribute("searhList", null);
+			/*
+			System.out.println("filterSearchList : ");
+			
+			for (Integer integer : filterResult)
+			{
+				System.out.println(integer);
+			}
+			*/
+			
+			ArrayList<StoreDTO> searchList = dao.getStoreList(filterResult);
+			
+			model.addAttribute("searchList", searchList);
 		}
 
 		result = "/WEB-INF/view/user_main_2.jsp";

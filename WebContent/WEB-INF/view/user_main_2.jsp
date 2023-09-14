@@ -237,6 +237,21 @@ String cp = request.getContextPath();
 		});
 		
 	});
+	
+	function enterkey() 
+	{	
+		if (window.event.keyCode == 13)
+		{
+			if ($("#typingArea").val() == "")
+			{
+				$("#typingArea").focus();
+				return;
+			}
+			
+			$("#userForm").attr("action", "search.action");
+			$("#userForm").submit();
+		}
+	}
 </script>
 
 </head>
@@ -277,7 +292,7 @@ String cp = request.getContextPath();
 							<span>지역</span>
 						</div>
 						<div id="regionCB">
-							<c:forEach var="region" items="${regionList }">
+							<c:forEach var="region" items="${regionList }" varStatus="i"> 
 								<label for="${region.region_name }"> <c:choose>
 										<c:when test="${empty regionChecked}">
 											<input type="checkbox" class="checkBox" name="region"
@@ -300,7 +315,8 @@ String cp = request.getContextPath();
 											</c:forEach>
 										</c:otherwise>
 									</c:choose>
-								</label>
+								</label> 
+								<c:if test="${(i.index+1)%5==0 }"><br></c:if>
 							</c:forEach>
 						</div>
 					</div>
