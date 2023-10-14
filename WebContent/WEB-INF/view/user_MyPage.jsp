@@ -39,7 +39,7 @@ String cp = request.getContextPath();
 				$('.overlay').css("height", "100%");
 				$('.overlay').css("background", "rgba(0, 0, 0, 0.7)");
 				$('.overlay').css("z-index", "3");
-				$('.overlay').css("margin-top", "1.011vh");
+				//$('.overlay').css("margin-top", "1.011vh");
 				$('#checkOverlay').attr("value", "true");
 			}
 
@@ -48,7 +48,8 @@ String cp = request.getContextPath();
 		$(".sub_menu ul.small_menu").hide();
 		$(".sub_menu ul.big_menu").click(function()
 		{
-			$("ul", this).slideToggle(300);
+			$(".sub_menu ul.small_menu").not(this).fadeOut(250);
+			$("ul", this).stop().slideToggle(300);
 		});
 		// 외부 클릭 시 좌측 사이드 메뉴 숨기기
 		$('.overlay').on('click', function()
@@ -198,8 +199,7 @@ String cp = request.getContextPath();
 				<div class="col-md-8">
 					<div class="mypage">
 						마이 페이지 <input type="button" class="myPageBtn" value="개인정보수정"
-							onclick="pwPopupOpen()"
-							style="background-color: #EBC0B7; border-radius: 5px;">
+							onclick="pwPopupOpen()">
 						<input type="hidden" id="fail" value="${modifyOk}">
 					</div>
 
